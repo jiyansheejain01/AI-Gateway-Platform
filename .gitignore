@@ -1,0 +1,92 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.hypothesis/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Packaging and build output
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Test and coverage output
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+junit.xml
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets/
+
+# Logs and runtime files
+*.log
+*.pid
+*.pid.lock
+*.sock
+logs/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Local service data
+data/
+redis-data/
+postgres-data/
+qdrant_storage/
+kafka-data/
+grafana-data/
+tempo-data/
+
+# Local model and ML caches
+.cache/
+models/
+checkpoints/
+*.pt
+*.pth
+*.onnx
+*.safetensors
+
+# IDE and editor settings
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local Docker overrides
+docker-compose.override.yml
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
