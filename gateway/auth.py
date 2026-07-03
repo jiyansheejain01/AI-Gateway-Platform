@@ -1,12 +1,20 @@
 """
 Authentication and authorization mechanisms.
-Handles API key validation, JWT parsing, and role-based access control (RBAC).
+Handles JWT creation and validation.
 """
+
 from jose import jwt
 
-SECRET_KEY = "supersecretkey"
-ALGORITHM = "HS256"
+from core.config import settings
 
-def create_access_token(data: dict):
-    return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
- 
+
+def create_access_token(data: dict) -> str:
+    """
+    Create a signed JWT access token.
+    """
+
+    return jwt.encode(
+        data,
+        settings.JWT_SECRET,
+        algorithm=settings.JWT_ALGORITHM,
+    )

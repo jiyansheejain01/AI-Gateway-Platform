@@ -1,18 +1,37 @@
 """
-Database session management and connection pooling for the User Service.
+Database session management and connection pooling
+for the User Service.
 """
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "postgresql://postgres:Jiya%403030@localhost:5432/ai_gateway"
+from core.config import settings
+from core.logging import logger
 
-engine = create_engine(DATABASE_URL)
+
+engine = create_engine(
+    settings.DATABASE_URL,
+    pool_pre_ping=True,
+)
 
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
-    bind=engine
+    bind=engine,
 )
 
 Base = declarative_base()
+
+
+try:
+    with engine.connect():
+        logger.info("Connected to PostgreSQL")
+
+except Exception as e:
+    logger.error(
+        "Failed to connect to PostgreSQL",
+        error=str(e),
+    )
+    raise

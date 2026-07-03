@@ -4,19 +4,26 @@ Phi-3 model client using Ollama.
 
 from ollama import chat
 
+from core.config import settings
+from core.logging import logger
+
 
 def generate(messages: list) -> dict:
     """
-    Send the entire conversation history
-    to the local Phi-3 model.
+    Generate a response using the configured Phi-3 model.
     """
 
+    logger.info(
+        "Calling Phi-3 model",
+        model=settings.PHI3_MODEL,
+    )
+
     response = chat(
-        model="phi3:latest",
-        messages=messages
+        model=settings.PHI3_MODEL,
+        messages=messages,
     )
 
     return {
-        "model": "phi3",
-        "response": response["message"]["content"]
+        "model": settings.PHI3_MODEL,
+        "response": response["message"]["content"],
     }
