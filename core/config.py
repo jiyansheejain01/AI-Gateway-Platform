@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     JWT_SECRET: str
     JWT_ALGORITHM: str
     JWT_EXPIRE_MINUTES: int
+    JWT_REFRESH_EXPIRE_DAYS: int
+    JWT_ISSUER: str
+    JWT_AUDIENCE: str
 
     # ==========================================================
     # REDIS
