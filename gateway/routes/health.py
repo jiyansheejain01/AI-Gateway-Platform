@@ -7,7 +7,10 @@ from fastapi import APIRouter
 router = APIRouter()
 
 
-@router.get("/")
+@router.get(
+    "/health",
+    tags=["Health"],
+)
 def health_check():
     return {
         "status": "AI Gateway Running"

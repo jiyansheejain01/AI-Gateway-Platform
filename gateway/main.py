@@ -70,8 +70,27 @@ if settings.LOCAL_MODE:
 # Routes
 # ==========================================================
 
-app.include_router(health_router)
-app.include_router(login_router)
-app.include_router(session_router)
-app.include_router(chat_router)
-app.include_router(register_router)
+app.include_router(
+    health_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    login_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    session_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    chat_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    register_router,
+    prefix="/api/v1",
+)

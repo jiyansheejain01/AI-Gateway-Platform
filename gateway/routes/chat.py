@@ -9,7 +9,9 @@ from pydantic import BaseModel
 from core.security import get_current_user
 from services.chat_service.service import process_chat
 
-router = APIRouter()
+router = APIRouter(
+    tags=["Chat"],
+)
 
 
 class PromptRequest(BaseModel):
