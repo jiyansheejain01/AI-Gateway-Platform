@@ -68,10 +68,6 @@ Rules:
 
 
 def is_follow_up(prompt: str) -> bool:
-    """
-    Returns True if the prompt appears to depend
-    on previous conversation.
-    """
 
     prompt = prompt.strip().lower()
 
@@ -117,3 +113,4 @@ def is_follow_up(prompt: str) -> bool:
         print("Follow-up classifier error:", e)
 
         return False
+

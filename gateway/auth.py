@@ -65,5 +65,10 @@ def decode_access_token(token: str) -> dict:
 
         return payload
 
-    except JWTError:
+    except JWTError as e:
+        print("=" * 60)
+        print("JWT VALIDATION ERROR")
+        print(type(e).__name__)
+        print(str(e))
+        print("=" * 60)
         return None

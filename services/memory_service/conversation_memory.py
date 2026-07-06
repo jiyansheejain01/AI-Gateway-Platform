@@ -1,28 +1,53 @@
-"""
+﻿"""
 Conversation memory using Redis.
-Stores chat history for each session.
+Stores chat history for each user session.
 """
 
 import json
 
+from core.logging import logger
 from services.cache_service.redis_client import r
 
 
-SESSION_PREFIX = "chat_session:"
+SESSION_PREFIX = "chat_session"
 
 # Maximum number of messages to keep
 MAX_HISTORY = 20
 
 
-def load_conversation(session_id: str):
+def build_session_key(
+    tenant: str,
+    user_id: str,
+    session_id: str,
+) -> str:
+    """
+    Build a unique Redis key for a user's conversation.
+    """
 
-    key = SESSION_PREFIX + session_id
+    return f"{SESSION_PREFIX}:{tenant}:{user_id}:{session_id}"
 
-    print("Loading key:", key)
+
+def load_conversation(
+    tenant: str,
+    user_id: str,
+    session_id: str,
+):
+    """
+    Load a conversation from Redis.
+    """
+
+    key = build_session_key(
+        tenant,
+        user_id,
+        session_id,
+    )
+
+    logger.info(
+        "Loading conversation",
+        key=key,
+    )
 
     history = r.get(key)
-
-    print("Redis returned:", history)
 
     if history is None:
         return []
@@ -30,27 +55,49 @@ def load_conversation(session_id: str):
     return json.loads(history)
 
 
-def save_conversation(session_id: str, history: list):
+def save_conversation(
+    tenant: str,
+    user_id: str,
+    session_id: str,
+    history: list,
+):
+    """
+    Save conversation history.
+    """
 
     history = history[-MAX_HISTORY:]
 
-    key = SESSION_PREFIX + session_id
-
-    print("\n===== SAVING TO REDIS =====")
-    print("Key:", key)
-    print("History:", history)
+    key = build_session_key(
+        tenant,
+        user_id,
+        session_id,
+    )
 
     r.set(
         key,
-        json.dumps(history)
+        json.dumps(history),
     )
 
-    print("Redis value after save:", r.get(key))
-    print("===========================\n")
+    logger.info(
+        "Conversation saved",
+        key=key,
+        messages=len(history),
+    )
 
 
-def clear_conversation(session_id: str):
+def clear_conversation(
+    tenant: str,
+    user_id: str,
+    session_id: str,
+):
+    """
+    Delete a conversation.
+    """
 
-    key = SESSION_PREFIX + session_id
+    key = build_session_key(
+        tenant,
+        user_id,
+        session_id,
+    )
 
     r.delete(key)

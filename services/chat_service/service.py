@@ -48,14 +48,35 @@ from services.llm_service.orchestrator import (
 )
 
 
-def process_chat(session_id: str, prompt: str) -> dict:
+def process_chat(
+    session_id: str,
+    prompt: str,
+    current_user: dict,
+) -> dict:
     """
     Process a chat request.
     """
 
     REQUEST_COUNT.inc()
+    print("STEP 1: Entered process_chat")
 
     start_time = time.time()
+
+    # ======================================================
+    # Authenticated User
+    # ======================================================
+
+    user_id = current_user["sub"]
+    tenant = current_user["tenant"]
+    role = current_user["role"]
+    permissions = current_user["permissions"]
+
+    logger.info(
+        "Authenticated request",
+        user_id=user_id,
+        tenant=tenant,
+        role=role,
+    )
 
     # ======================================================
     # Follow-up Detection
@@ -63,6 +84,7 @@ def process_chat(session_id: str, prompt: str) -> dict:
 
     with tracer.start_as_current_span("Follow-up Detection"):
         follow_up = is_follow_up(prompt)
+        print("STEP 2: Follow-up detection complete")
 
     if follow_up:
         FOLLOWUP_REQUESTS.inc()
@@ -138,7 +160,9 @@ def process_chat(session_id: str, prompt: str) -> dict:
         with tracer.start_as_current_span("Load Conversation"):
 
             conversation = load_conversation(
-                session_id
+                tenant,
+                user_id,
+                session_id,
             )
 
         logger.info(
@@ -156,6 +180,7 @@ def process_chat(session_id: str, prompt: str) -> dict:
     with tracer.start_as_current_span("Model Router"):
 
         route = route_prompt(prompt)
+        print("STEP 3: Model routing complete")
 
     MODEL_REQUESTS.labels(
         model=route["model"]
@@ -182,11 +207,13 @@ def process_chat(session_id: str, prompt: str) -> dict:
     logger.info("Calling LLM")
 
     with tracer.start_as_current_span("LLM Generation"):
-
+        print("STEP 4: About to call LLM")
         response = generate_response(
             route["model"],
             conversation
         )
+        print("STEP 5: LLM returned")
+        
 
     conversation.append(
         {
@@ -202,10 +229,12 @@ def process_chat(session_id: str, prompt: str) -> dict:
     )
 
     with tracer.start_as_current_span("Save Conversation"):
-
+        print("STEP 6: Saving conversation")
         save_conversation(
+            tenant,
+            user_id,
             session_id,
-            conversation
+            conversation,
         )
 
     logger.info("Conversation saved")
@@ -258,6 +287,7 @@ def process_chat(session_id: str, prompt: str) -> dict:
         time.time() - start_time
     )
 
+    print("STEP 7: Returning response")
     return {
         "source": "llm",
         "response": response,

@@ -57,12 +57,16 @@ def get_current_user(
     Validate JWT and return the current user payload.
     """
 
+    print("=" * 60)
+    print("SCHEME:", credentials.scheme)
+    print("TOKEN:", credentials.credentials)
+    print("=" * 60)
+
     token = credentials.credentials
 
     payload = decode_access_token(token)
 
     if payload is None:
-
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
