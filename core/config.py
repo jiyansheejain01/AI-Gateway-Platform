@@ -18,6 +18,16 @@ class Settings(BaseSettings):
     DEBUG: bool
 
     # ==========================================================
+    # EXECUTION MODE
+    # ==========================================================
+
+    LOCAL_MODE: bool
+
+    SQLITE_PATH: str
+
+    QDRANT_PATH: str
+
+    # ==========================================================
     # JWT
     # ==========================================================
     JWT_SECRET: str
@@ -82,6 +92,10 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
+
+        if self.LOCAL_MODE:
+            return f"sqlite:///{self.SQLITE_PATH}"
+
         return (
             f"postgresql://{self.POSTGRES_USER}:"
             f"{self.POSTGRES_PASSWORD}@"
