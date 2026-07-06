@@ -1,9 +1,9 @@
-"""
+﻿"""
 Database models for users, teams, and API keys.
 """
 from sqlalchemy import Column, Integer, String
 
-from database import Base
+from services.user_service.database import Base
 
 
 class User(Base):

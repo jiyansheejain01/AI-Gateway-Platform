@@ -1,6 +1,9 @@
 """
-Database session management and connection pooling
-for the User Service.
+Database session management.
+
+Supports:
+- SQLite (LOCAL_MODE)
+- PostgreSQL (Production)
 """
 
 from sqlalchemy import create_engine
@@ -11,10 +14,39 @@ from core.config import settings
 from core.logging import logger
 
 
-engine = create_engine(
-    settings.DATABASE_URL,
-    pool_pre_ping=True,
-)
+# ==========================================================
+# Database Engine
+# ==========================================================
+
+if settings.LOCAL_MODE:
+
+    engine = create_engine(
+        settings.DATABASE_URL,
+        connect_args={"check_same_thread": False},
+    )
+
+    logger.info(
+        "Using SQLite (LOCAL_MODE)",
+        database=settings.SQLITE_PATH,
+    )
+
+else:
+
+    engine = create_engine(
+        settings.DATABASE_URL,
+        pool_pre_ping=True,
+    )
+
+    logger.info(
+        "Using PostgreSQL",
+        host=settings.POSTGRES_HOST,
+        database=settings.POSTGRES_DB,
+    )
+
+
+# ==========================================================
+# Session
+# ==========================================================
 
 SessionLocal = sessionmaker(
     autocommit=False,
@@ -25,13 +57,20 @@ SessionLocal = sessionmaker(
 Base = declarative_base()
 
 
+# ==========================================================
+# Connection Test
+# ==========================================================
+
 try:
+
     with engine.connect():
-        logger.info("Connected to PostgreSQL")
+        logger.info("Database connection successful")
 
 except Exception as e:
+
     logger.error(
-        "Failed to connect to PostgreSQL",
+        "Failed to connect to database",
         error=str(e),
     )
+
     raise

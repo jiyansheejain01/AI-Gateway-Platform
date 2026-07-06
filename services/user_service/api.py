@@ -1,4 +1,4 @@
-"""
+﻿"""
 API endpoints for user and client management.
 """
 import sys
@@ -9,12 +9,13 @@ from fastapi import FastAPI, HTTPException, Header
 from gateway.rate_limiter import check_rate_limit
 from pydantic import BaseModel
 
-from database import SessionLocal, engine
-from models import Base, User
+from services.user_service.database import SessionLocal, engine
+from services.user_service.models import Base, User
 
+from core.config import settings
 from jose import jwt, JWTError
 
-SECRET_KEY = "supersecretkey"
+SECRET_KEY = settings.JWT_SECRET
 ALGORITHM = "HS256"
 
 def verify_token(token: str):
