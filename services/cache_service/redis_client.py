@@ -1,35 +1,41 @@
-"""
-Shared Redis client.
-
-Every service should import this client instead of creating
-its own Redis connection.
-"""
-
 import redis
+import fakeredis
 
 from core.config import settings
 from core.logging import logger
 
+if settings.LOCAL_MODE:
 
-r = redis.Redis(
-    host=settings.REDIS_HOST,
-    port=settings.REDIS_PORT,
-    db=settings.REDIS_DB,
-    decode_responses=True,
-)
+    r = fakeredis.FakeRedis(
+        decode_responses=True
+    )
 
+    logger.info("Using FakeRedis (LOCAL_MODE)")
 
-try:
-    r.ping()
-    logger.info(
-        "Connected to Redis",
+else:
+
+    r = redis.Redis(
         host=settings.REDIS_HOST,
         port=settings.REDIS_PORT,
+        db=settings.REDIS_DB,
+        decode_responses=True,
     )
 
-except Exception as e:
-    logger.error(
-        "Failed to connect to Redis",
-        error=str(e),
-    )
-    raise
+    try:
+
+        r.ping()
+
+        logger.info(
+            "Connected to Redis",
+            host=settings.REDIS_HOST,
+            port=settings.REDIS_PORT,
+        )
+
+    except Exception as e:
+
+        logger.error(
+            "Failed to connect to Redis",
+            error=str(e),
+        )
+
+        raise

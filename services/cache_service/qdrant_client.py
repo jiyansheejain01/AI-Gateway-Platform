@@ -13,10 +13,20 @@ from core.config import settings
 from core.logging import logger
 
 
-client = QdrantClient(
-    host=settings.QDRANT_HOST,
-    port=settings.QDRANT_PORT,
-)
+if settings.LOCAL_MODE:
+
+    client = QdrantClient(
+        path=settings.QDRANT_PATH
+    )
+
+    logger.info("Using Embedded Qdrant (LOCAL_MODE)")
+
+else:
+
+    client = QdrantClient(
+        host=settings.QDRANT_HOST,
+        port=settings.QDRANT_PORT,
+    )
 
 COLLECTION_NAME = settings.QDRANT_COLLECTION
 

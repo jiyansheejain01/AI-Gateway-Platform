@@ -8,7 +8,9 @@ from qdrant_client.models import PointStruct
 from services.embedding_service.embed import generate_embedding
 from .qdrant_client import client
 
-COLLECTION_NAME = "prompt_cache"
+from core.config import settings
+
+COLLECTION_NAME = settings.QDRANT_COLLECTION
 
 
 def store_embedding(
