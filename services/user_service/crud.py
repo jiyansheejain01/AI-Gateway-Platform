@@ -59,3 +59,18 @@ def create_user(
     db.refresh(user)
 
     return user
+
+
+def authenticate_user(
+    db: Session,
+    username: str,
+):
+    """
+    Retrieve a user by username.
+    """
+
+    return (
+        db.query(User)
+        .filter(User.username == username)
+        .first()
+    )
