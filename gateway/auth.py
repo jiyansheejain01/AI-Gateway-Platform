@@ -3,12 +3,10 @@ Authentication utilities.
 Handles JWT creation and validation.
 """
 
-from datetime import datetime
-from datetime import timedelta
-from datetime import timezone
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
-from jose import jwt
+from jose import JWTError, jwt
 
 from core.config import settings
 
@@ -17,14 +15,17 @@ def create_access_token(
     user_id: int,
     username: str,
     role: str,
+    tenant: str = "default",
+    permissions: list[str] | None = None,
 ) -> str:
     """
     Create a signed JWT access token.
     """
 
-    expire = datetime.now(
-        timezone.utc
-    ) + timedelta(
+    if permissions is None:
+        permissions = ["chat"]
+
+    expire = datetime.now(timezone.utc) + timedelta(
         minutes=settings.JWT_EXPIRE_MINUTES
     )
 
@@ -32,6 +33,8 @@ def create_access_token(
         "sub": str(user_id),
         "username": username,
         "role": role,
+        "tenant": tenant,
+        "permissions": permissions,
         "iss": settings.JWT_ISSUER,
         "aud": settings.JWT_AUDIENCE,
         "jti": str(uuid4()),
@@ -43,3 +46,24 @@ def create_access_token(
         settings.JWT_SECRET,
         algorithm=settings.JWT_ALGORITHM,
     )
+
+
+def decode_access_token(token: str) -> dict:
+    """
+    Decode and validate a JWT access token.
+    """
+
+    try:
+
+        payload = jwt.decode(
+            token,
+            settings.JWT_SECRET,
+            algorithms=[settings.JWT_ALGORITHM],
+            issuer=settings.JWT_ISSUER,
+            audience=settings.JWT_AUDIENCE,
+        )
+
+        return payload
+
+    except JWTError:
+        return None
