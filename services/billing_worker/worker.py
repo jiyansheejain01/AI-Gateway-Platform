@@ -1,41 +1,51 @@
 """
-Kafka consumer/worker that simulates billing for every API request.
+Billing Worker.
+
+Simulates billing for every API request.
+Works with both:
+- Kafka (production)
+- Local EventBus (LOCAL_MODE)
 """
 
 import json
 
 from kafka import KafkaConsumer
 
+from core.config import settings
 from kafka_service.config import KAFKA_BOOTSTRAP_SERVERS
 from kafka_service.topics import RESPONSE_GENERATED
 
 
-consumer = KafkaConsumer(
-    RESPONSE_GENERATED,
-    bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-    auto_offset_reset="latest",          # Only consume new events
-    group_id="billing-worker-v2",        # New consumer group
-    value_deserializer=lambda value: json.loads(value.decode("utf-8"))
-)
-
-print("Billing Worker Started...\n")
+# ==========================================================
+# Billing State
+# ==========================================================
 
 total_cost = 0.0
 total_requests = 0
 
 
-for message in consumer:
+# ==========================================================
+# Shared Business Logic
+# ==========================================================
 
-    event = message.value
+def process_event(event: dict):
+    """
+    Process one response-generated event.
+    Can be called by:
+    - Kafka consumer
+    - Local EventBus
+    """
+
+    global total_cost
+    global total_requests
 
     print("Received Event:")
     print(event)
     print("-" * 50)
 
-    # Skip old/incomplete events
     if "model" not in event:
         print("Skipping old/incomplete event.\n")
-        continue
+        return
 
     model = event["model"]
 
@@ -55,4 +65,35 @@ for message in consumer:
     print(f"Total Requests      : {total_requests}")
     print(f"Total Cost          : ₹{total_cost:.2f}")
     print("-" * 50)
-    
+
+
+# ==========================================================
+# Kafka Worker (Production Only)
+# ==========================================================
+
+def start_worker():
+    """
+    Start Kafka consumer.
+    Used only in production.
+    """
+
+    consumer = KafkaConsumer(
+        RESPONSE_GENERATED,
+        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+        auto_offset_reset="latest",
+        group_id="billing-worker-v2",
+        value_deserializer=lambda value: json.loads(value.decode("utf-8")),
+    )
+
+    print("Billing Worker Started...\n")
+
+    for message in consumer:
+        process_event(message.value)
+
+
+# ==========================================================
+# Auto-start only in Production
+# ==========================================================
+
+if not settings.LOCAL_MODE:
+    start_worker()

@@ -1,7 +1,7 @@
 """
-Simple in-process Event Bus for LOCAL_MODE.
+Simple in-process Event Bus.
 
-Acts as a lightweight replacement for Kafka during development.
+Used in LOCAL_MODE instead of Kafka.
 """
 
 from collections import defaultdict
@@ -19,7 +19,7 @@ def subscribe(topic: str, handler: Callable):
 
 def publish(topic: str, event: dict):
     """
-    Publish an event to all subscribers.
+    Publish an event to every subscriber.
     """
 
     for handler in _subscribers[topic]:

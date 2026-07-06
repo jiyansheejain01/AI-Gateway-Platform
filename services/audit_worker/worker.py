@@ -1,6 +1,10 @@
 """
-Kafka consumer/worker that logs security-sensitive events,
-policy violations, and access audits.
+Audit Worker.
+
+Logs security-sensitive events.
+Works with both:
+- Kafka (production)
+- Local EventBus (LOCAL_MODE)
 """
 
 import json
@@ -8,40 +12,37 @@ from datetime import datetime
 
 from kafka import KafkaConsumer
 
+from core.config import settings
 from kafka_service.config import KAFKA_BOOTSTRAP_SERVERS
 from kafka_service.topics import RESPONSE_GENERATED
 
 
-consumer = KafkaConsumer(
-    RESPONSE_GENERATED,
-    bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-    auto_offset_reset="latest",          # Only consume new events
-    group_id="audit-worker-v2",          # New consumer group
-    value_deserializer=lambda value: json.loads(value.decode("utf-8"))
-)
+# ==========================================================
+# Shared Business Logic
+# ==========================================================
 
-print("Audit Worker Started...\n")
-
-
-for message in consumer:
-
-    event = message.value
+def process_event(event: dict):
+    """
+    Process one response-generated event.
+    Can be called by:
+    - Kafka consumer
+    - Local EventBus
+    """
 
     print("Received Event:")
     print(event)
     print("-" * 50)
 
-    # Skip old/incomplete events
     required_fields = [
         "model",
         "complexity",
         "score",
-        "prompt"
+        "prompt",
     ]
 
     if not all(field in event for field in required_fields):
         print("Skipping old/incomplete event.\n")
-        continue
+        return
 
     log = (
         f"{datetime.now()} | "
@@ -55,3 +56,35 @@ for message in consumer:
         file.write(log)
 
     print("Audit Log Saved.\n")
+
+
+# ==========================================================
+# Kafka Worker (Production Only)
+# ==========================================================
+
+def start_worker():
+    """
+    Start Kafka consumer.
+    Used only in production.
+    """
+
+    consumer = KafkaConsumer(
+        RESPONSE_GENERATED,
+        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+        auto_offset_reset="latest",
+        group_id="audit-worker-v2",
+        value_deserializer=lambda value: json.loads(value.decode("utf-8")),
+    )
+
+    print("Audit Worker Started...\n")
+
+    for message in consumer:
+        process_event(message.value)
+
+
+# ==========================================================
+# Auto-start only in Production
+# ==========================================================
+
+if not settings.LOCAL_MODE:
+    start_worker()

@@ -16,6 +16,15 @@ from gateway.routes.login import router as login_router
 from gateway.routes.session import router as session_router
 from gateway.routes.chat import router as chat_router
 
+from core.config import settings
+
+from core.event_bus import subscribe
+
+from kafka_service.topics import RESPONSE_GENERATED
+
+from services.analytics_worker.worker import process_event as analytics_handler
+from services.audit_worker.worker import process_event as audit_handler
+from services.billing_worker.worker import process_event as billing_handler
 
 app = FastAPI(
     title="AI Gateway Platform",
@@ -28,6 +37,27 @@ app = FastAPI(
 
 FastAPIInstrumentor.instrument_app(app)
 Instrumentator().instrument(app).expose(app)
+
+# ==========================================================
+# Local Event Bus
+# ==========================================================
+
+if settings.LOCAL_MODE:
+
+    subscribe(
+        RESPONSE_GENERATED,
+        analytics_handler,
+    )
+
+    subscribe(
+        RESPONSE_GENERATED,
+        audit_handler,
+    )
+
+    subscribe(
+        RESPONSE_GENERATED,
+        billing_handler,
+    )
 
 # ==========================================================
 # Routes
