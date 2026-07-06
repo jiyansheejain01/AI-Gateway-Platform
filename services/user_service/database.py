@@ -74,3 +74,20 @@ except Exception as e:
     )
 
     raise
+
+# ==========================================================
+# Database Dependency
+# ==========================================================
+
+def get_db():
+    """
+    FastAPI dependency that provides a database session.
+    """
+
+    db = SessionLocal()
+
+    try:
+        yield db
+
+    finally:
+        db.close()

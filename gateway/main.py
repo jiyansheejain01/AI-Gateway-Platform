@@ -15,6 +15,7 @@ from gateway.routes.health import router as health_router
 from gateway.routes.login import router as login_router
 from gateway.routes.session import router as session_router
 from gateway.routes.chat import router as chat_router
+from gateway.routes.register import router as register_router
 
 from core.config import settings
 
@@ -25,6 +26,12 @@ from kafka_service.topics import RESPONSE_GENERATED
 from services.analytics_worker.worker import process_event as analytics_handler
 from services.audit_worker.worker import process_event as audit_handler
 from services.billing_worker.worker import process_event as billing_handler
+
+from services.user_service.database import Base, engine
+from services.user_service.models import User
+
+# Create database tables (temporary until Alembic is added)
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="AI Gateway Platform",
@@ -67,3 +74,4 @@ app.include_router(health_router)
 app.include_router(login_router)
 app.include_router(session_router)
 app.include_router(chat_router)
+app.include_router(register_router)
