@@ -17,6 +17,7 @@ from services.memory_service.followup_classifier import is_follow_up
 from services.monitoring.tracing import tracer
 
 from services.monitoring.metrics import (
+    
     REQUEST_COUNT,
     REQUEST_LATENCY,
     REDIS_CACHE_HITS,
