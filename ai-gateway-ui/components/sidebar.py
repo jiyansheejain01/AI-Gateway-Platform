@@ -99,6 +99,7 @@ def build_sidebar(chat_window=None):
         ui.button(
             "New Chat",
             icon="add",
+            on_click=lambda: get_chat_window().new_chat(),
         ).props(
             "unelevated color=primary"
         ).classes(

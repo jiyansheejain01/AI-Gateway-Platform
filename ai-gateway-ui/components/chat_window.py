@@ -140,9 +140,16 @@ class ChatWindow:
         """
         Start a fresh chat session.
         """
+
         self.session_id = new_session()
 
+        self.prompt.value = ""
+
+        self.hide_thinking()
+
         self.clear_chat()
+
+        print(f"New session created: {self.session_id}")
 
     def load_conversation(self, session_id: str):
         """
