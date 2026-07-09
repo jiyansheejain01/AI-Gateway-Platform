@@ -1,11 +1,17 @@
 from urllib import response
 
 from nicegui import ui
-import uuid
-from api.client import chat
+from api.client import (
+    chat,
+    get_conversation,
+)
 from auth.session import get_token
 from components.message import MessageBubble
-from auth.chat_session import get_session
+from auth.chat_session import (
+    get_session,
+    new_session,
+    set_session,
+)
 import traceback
 
 class ChatWindow:
@@ -118,6 +124,71 @@ class ChatWindow:
         if self.thinking:
             self.thinking.delete()
             self.thinking = None
+
+    def clear_chat(self):
+        """
+        Clear the chat window and show the welcome message.
+        """
+        self.chat_container.clear()
+
+        with self.chat_container:
+            self._add_welcome_message()
+
+    def new_chat(self):
+        """
+        Start a fresh chat session.
+        """
+        self.session_id = new_session()
+
+        self.clear_chat()
+
+    def load_conversation(self, session_id: str):
+        """
+        Load an existing conversation from the backend.
+        """
+
+        set_session(session_id)
+        self.session_id = session_id
+
+        token = get_token()
+
+        response = get_conversation(
+            session_id=session_id,
+            token=token,
+        )
+
+        if response.status_code != 200:
+            ui.notify(
+                "Failed to load conversation",
+                color="negative",
+            )
+            return
+
+        history = response.json()
+
+        # Clear current chat
+        self.chat_container.clear()
+
+        # Render conversation
+        with self.chat_container:
+
+            for message in history:
+
+                if message["role"] == "user":
+
+                    MessageBubble(
+                        message=message["content"],
+                        sender="You",
+                        is_user=True,
+                    )
+
+                else:
+
+                    MessageBubble(
+                        message=message["content"],
+                        sender="Gateway AI",
+                        is_user=False,
+                    )
 
     def show_error(self, message: str):
         self.add_ai_message(message)

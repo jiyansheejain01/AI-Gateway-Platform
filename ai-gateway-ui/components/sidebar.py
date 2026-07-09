@@ -101,7 +101,9 @@ def build_sidebar(chat_window=None):
 
                 conversation_item(
                     title=conversation["title"],
+                    session_id=conversation["session_id"],
                     active=(i == 0),
+                    on_click=chat_window.load_conversation if chat_window else None,
                 )
 
         else:
