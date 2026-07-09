@@ -5,7 +5,11 @@ import uuid
 from api.client import chat
 from auth.session import get_token
 from components.message import MessageBubble
-from auth.chat_session import get_session
+from auth.chat_session import (
+    get_session,
+    new_session,
+    set_session,
+)
 import traceback
 
 class ChatWindow:
@@ -118,6 +122,34 @@ class ChatWindow:
         if self.thinking:
             self.thinking.delete()
             self.thinking = None
+
+    def clear_chat(self):
+        """
+        Clear the current chat window and show the welcome message.
+        """
+
+        self.chat_container.clear()
+
+        with self.chat_container:
+            self._add_welcome_message()
+
+    def new_chat(self):
+        """
+        Start a fresh chat session.
+        """
+
+        self.session_id = new_session()
+
+        self.clear_chat()
+
+    def load_conversation(self, session_id: str):
+        """
+        Placeholder.
+        Actual loading will be implemented next.
+        """
+        set_session(session_id)
+
+        self.session_id = session_id
 
     def show_error(self, message: str):
         self.add_ai_message(message)
