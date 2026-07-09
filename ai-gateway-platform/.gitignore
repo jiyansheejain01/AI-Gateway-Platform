@@ -1,0 +1,25 @@
+# Backend venv
+ai-gateway-platform/.venv/
+
+# Frontend venv
+ai-gateway-ui/.venv-ui/
+
+# Python
+**/__pycache__/
+*.pyc
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Environment
+.env
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
