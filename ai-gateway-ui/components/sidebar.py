@@ -1,5 +1,6 @@
 from nicegui import ui
-
+from api.client import get_conversations
+from auth.session import get_token
 
 def conversation_item(title: str, active: bool = False):
 
@@ -48,7 +49,26 @@ def conversation_item(title: str, active: bool = False):
                 )
 
 
-def build_sidebar():
+def build_sidebar(chat_window=None):
+
+    conversations = []
+
+    try:
+        token = get_token()
+
+        response = get_conversations(token)
+
+        print("=" * 50)
+        print("GET /conversations")
+        print("Status:", response.status_code)
+        print("Body:", response.text)
+        print("=" * 50)
+
+        if response.status_code == 200:
+            conversations = response.json()
+
+    except Exception as e:
+        print("Failed to load conversations:", e)
 
     with ui.column().classes(
     "w-72 h-full bg-white border-r border-gray-200 p-3"
@@ -75,18 +95,22 @@ def build_sidebar():
             "uppercase tracking-widest text-[11px] font-semibold text-gray-400 px-2 pt-2"
         )
 
-        conversation_item(
-            "How does Redis work?",
-            active=True
-        )
+        if conversations:
 
-        conversation_item(
-            "JWT Authentication"
-        )
+            for i, conversation in enumerate(conversations):
 
-        conversation_item(
-            "Semantic Cache"
-        )
+                conversation_item(
+                    title=conversation["title"],
+                    active=(i == 0),
+                )
+
+        else:
+
+            ui.label(
+                "No conversations yet"
+            ).classes(
+                "text-xs text-gray-400 px-2 py-2"
+            )
 
         ui.separator().classes("my-3")
 
@@ -96,14 +120,6 @@ def build_sidebar():
             "YESTERDAY"
         ).classes(
             "text-xs font-bold text-gray-500"
-        )
-
-        conversation_item(
-            "Docker Compose"
-        )
-
-        conversation_item(
-            "LLM Routing"
         )
 
         ui.space()
