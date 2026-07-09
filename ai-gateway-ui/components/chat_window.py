@@ -5,6 +5,7 @@ from api.client import (
     chat,
     get_conversation,
 )
+from components.chat_controller import set_chat_window
 from auth.session import get_token
 from components.message import MessageBubble
 from auth.chat_session import (
@@ -20,6 +21,7 @@ class ChatWindow:
         self.session_id = get_session()
         self.analytics = None
         self.thinking = None 
+        set_chat_window(self)
 
         with ui.column().classes(
             "flex-grow max-w-6xl mx-auto px-6 py-4"

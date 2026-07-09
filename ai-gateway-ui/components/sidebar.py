@@ -1,8 +1,14 @@
 from nicegui import ui
 from api.client import get_conversations
 from auth.session import get_token
+from components.chat_controller import get_chat_window
 
-def conversation_item(title: str, active: bool = False):
+def conversation_item(
+    title: str,
+    active: bool = False,
+    session_id: str | None = None,
+    on_click=None,
+):
 
     bg = (
         "bg-blue-50 border border-blue-200"
@@ -10,19 +16,33 @@ def conversation_item(title: str, active: bool = False):
         else "bg-white border border-transparent hover:bg-gray-50"
     )
 
-    with ui.card().classes(
-        f"""
-        w-full
-        rounded-xl
-        shadow-none
-        cursor-pointer
-        transition-all
-        duration-200
-        {bg}
-        """
-    ).style(
-        "padding:12px;"
-    ):
+    card = (
+        ui.card()
+        .classes(
+            f"""
+            w-full
+            rounded-xl
+            shadow-none
+            cursor-pointer
+            transition-all
+            duration-200
+            {bg}
+            """
+        )
+        .style("padding:12px;")
+    )
+
+    # Attach click handler
+    if on_click:
+        card.on(
+            "click",
+            lambda _: (
+                print(f"Clicked session: {session_id}"),
+                on_click(session_id),
+            ),
+        )
+
+    with card:
 
         with ui.row().classes(
             "items-center no-wrap w-full gap-3"
@@ -103,7 +123,7 @@ def build_sidebar(chat_window=None):
                     title=conversation["title"],
                     session_id=conversation["session_id"],
                     active=(i == 0),
-                    on_click=chat_window.load_conversation if chat_window else None,
+                    on_click=lambda session_id: get_chat_window().load_conversation(session_id),
                 )
 
         else:
