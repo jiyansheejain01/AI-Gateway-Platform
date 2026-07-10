@@ -3,6 +3,7 @@ from api.client import get_conversations
 from auth.session import get_token
 from components.chat_controller import get_chat_window
 from components.sidebar_controller import set_sidebar_refresh
+from auth.chat_session import get_session
 
 def conversation_item(
     title: str,
@@ -87,12 +88,13 @@ def render_conversations():
 
     if conversations:
 
+        current_session = get_session()
         for i, conversation in enumerate(conversations):
 
             conversation_item(
                 title=conversation["title"],
                 session_id=conversation["session_id"],
-                active=(i == 0),
+                active=(conversation["session_id"] == current_session),
                 on_click=lambda session_id: get_chat_window().load_conversation(session_id),
             )
 

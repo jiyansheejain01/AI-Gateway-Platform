@@ -158,6 +158,7 @@ class ChatWindow:
         self.hide_thinking()
 
         self.clear_chat()
+        refresh_sidebar()  
 
         print(f"New session created: {self.session_id}")
 
@@ -168,6 +169,7 @@ class ChatWindow:
 
         set_session(session_id)
         self.session_id = session_id
+        refresh_sidebar()
 
         token = get_token()
 
@@ -292,14 +294,7 @@ class ChatWindow:
     # Backend
     # --------------------------------------------------
 
-    def call_backend(self, question: str):
-
-        token = get_token()
-
-        print("=" * 50)
-        print("TOKEN USED IN CHAT:")
-        print(token)
-        print("=" * 50)
+    def call_backend(self, question: str, token: str):
 
         return chat(
             prompt=question,
@@ -327,7 +322,7 @@ class ChatWindow:
         self.show_thinking()
 
         ui.update()                       # Immediately render UI
-
+        token = get_token()
         self.prompt.disable()
 
 
@@ -336,6 +331,7 @@ class ChatWindow:
             response = await run.io_bound(
                 self.call_backend,
                 question,
+                token,
             )
 
             self.hide_thinking()

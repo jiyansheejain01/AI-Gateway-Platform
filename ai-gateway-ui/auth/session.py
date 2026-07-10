@@ -1,22 +1,18 @@
-TOKEN = None
-USERNAME = None
+from nicegui import app
 
 
 def save_session(token: str, username: str):
-    global TOKEN, USERNAME
-    TOKEN = token
-    USERNAME = username
+    app.storage.user["token"] = token
+    app.storage.user["username"] = username
 
 
 def get_token():
-    return TOKEN
+    return app.storage.user.get("token")
 
 
 def get_username():
-    return USERNAME
+    return app.storage.user.get("username")
 
 
 def logout():
-    global TOKEN, USERNAME
-    TOKEN = None
-    USERNAME = None
+    app.storage.user.clear()
