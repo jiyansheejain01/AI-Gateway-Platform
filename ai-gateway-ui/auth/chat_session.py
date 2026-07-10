@@ -1,53 +1,29 @@
 import uuid
-
-SESSION_ID = None
+from nicegui import app
 
 
 def create_session():
-    """
-    Create a brand new chat session.
-    """
-    global SESSION_ID
-
-    SESSION_ID = uuid.uuid4().hex
-
-    return SESSION_ID
+    session_id = uuid.uuid4().hex
+    app.storage.user["session_id"] = session_id
+    return session_id
 
 
 def get_session():
-    """
-    Return current session.
-    Create one if it doesn't exist.
-    """
-    global SESSION_ID
+    session_id = app.storage.user.get("session_id")
 
-    if SESSION_ID is None:
-        SESSION_ID = create_session()
+    if session_id is None:
+        session_id = create_session()
 
-    return SESSION_ID
+    return session_id
 
 
 def new_session():
-    """
-    Generate a fresh session.
-    """
     return create_session()
 
 
 def set_session(session_id: str):
-    """
-    Set the active session.
-    Used when opening an old conversation.
-    """
-    global SESSION_ID
-
-    SESSION_ID = session_id
+    app.storage.user["session_id"] = session_id
 
 
 def clear_session():
-    """
-    Clear the current session.
-    """
-    global SESSION_ID
-
-    SESSION_ID = None
+    app.storage.user.pop("session_id", None)

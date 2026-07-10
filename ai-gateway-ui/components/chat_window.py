@@ -24,6 +24,8 @@ class ChatWindow:
         self.thinking = None 
         set_chat_window(self)
 
+        print("CHAT WINDOW:", id(self))
+
         with ui.column().classes(
             "flex-1 min-w-0 px-6 py-4"
         ):
@@ -166,7 +168,7 @@ class ChatWindow:
         """
         Load an existing conversation from the backend.
         """
-
+        print("LOAD:", id(self), session_id)
         set_session(session_id)
         self.session_id = session_id
         refresh_sidebar()
@@ -295,7 +297,8 @@ class ChatWindow:
     # --------------------------------------------------
 
     def call_backend(self, question: str, token: str):
-
+        print("CHAT WINDOW:", id(self))
+        print("SESSION:", self.session_id)
         return chat(
             prompt=question,
             token=token,
