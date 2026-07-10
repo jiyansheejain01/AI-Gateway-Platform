@@ -1,6 +1,6 @@
 from urllib import response
 
-from nicegui import ui
+from nicegui import ui, run
 from api.client import (
     chat,
     get_conversation,
@@ -110,17 +110,28 @@ class ChatWindow:
             )
 
     def show_thinking(self):
+
         with self.chat_container:
-            self.thinking = ui.row().classes("items-center gap-3")
+
+            self.thinking = ui.card().classes(
+                "bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm max-w-[72%]"
+            )
 
             with self.thinking:
-                ui.spinner(size="md")
 
-                ui.label(
-                    "Thinking..."
-                ).classes(
-                    "text-sm text-gray-500"
+                ui.label("Gateway AI").classes(
+                    "text-[11px] font-medium text-gray-400 mb-1"
                 )
+
+                with ui.row().classes("items-center gap-3"):
+
+                    ui.spinner(size="sm")
+
+                    ui.label(
+                        "Thinking..."
+                    ).classes(
+                        "text-sm text-gray-500"
+                    )
 
 
     def hide_thinking(self):
@@ -143,8 +154,6 @@ class ChatWindow:
         """
 
         self.session_id = new_session()
-
-        self.prompt.value = ""
 
         self.hide_thinking()
 
@@ -302,7 +311,7 @@ class ChatWindow:
     # Main Send Function
     # --------------------------------------------------
 
-    def send(self):
+    async def send(self):
 
         question = self.prompt.value.strip()
 
@@ -310,16 +319,28 @@ class ChatWindow:
             return
 
         self.prompt.value = ""
+        self.prompt.update()              # Force browser update
+        self.prompt.run_method("focus")   # Put cursor back
 
         self.add_user_message(question)
 
         self.show_thinking()
 
+        ui.update()                       # Immediately render UI
+
+        self.prompt.disable()
+
+
         try:
 
-            response = self.call_backend(question)
+            response = await run.io_bound(
+                self.call_backend,
+                question,
+            )
 
             self.hide_thinking()
+            self.prompt.enable()
+            self.prompt.run_method("focus")
 
             if response.status_code != 200:
 
@@ -374,7 +395,8 @@ class ChatWindow:
             traceback.print_exc()
 
             self.hide_thinking()
-
+            self.prompt.enable()
+            self.prompt.run_method("focus")
             self.show_error(
                 f"ERROR: {e}"
             )
