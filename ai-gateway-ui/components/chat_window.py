@@ -207,7 +207,12 @@ class ChatWindow:
     # Analytics
     # --------------------------------------------------
 
-    def update_analytics(self, model: str, source: str):
+    def update_analytics(
+    self,
+    model: str,
+    source: str,
+    latency,
+):
 
         if not self.analytics:
             return
@@ -235,9 +240,9 @@ class ChatWindow:
             replace="text-sm font-semibold text-slate-700"
         )
 
-        self.analytics["latency"].set_text("-")
+        self.analytics["latency"].set_text(f"{latency} s")
         self.analytics["latency"].classes(
-            replace="text-sm font-semibold text-slate-700"
+            replace="text-sm font-semibold text-green-600"
         )
 
         # ---------------- Cache Status ---------------- #
@@ -348,6 +353,7 @@ class ChatWindow:
             print("Reached C:", model)
 
             source = data["source"]
+            latency = data.get("latency", "-")
             print("Reached D:", source)
 
             self.add_ai_message(answer)
@@ -356,6 +362,7 @@ class ChatWindow:
             self.update_analytics(
                 model=model,
                 source=source,
+                latency=latency,
             )
             refresh_sidebar()
             print("Reached F")

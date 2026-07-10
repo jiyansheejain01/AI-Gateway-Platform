@@ -111,9 +111,14 @@ def process_chat(
                 time.time() - start_time
             )
 
+            latency = round(time.time() - start_time, 3)
+
+            REQUEST_LATENCY.observe(latency)
+
             return {
                 "source": "redis",
-                "response": cached
+                "response": cached,
+                "latency": latency,
             }
 
         logger.info("Redis cache miss")
@@ -139,9 +144,14 @@ def process_chat(
                 time.time() - start_time
             )
 
+            latency = round(time.time() - start_time, 3)
+
+            REQUEST_LATENCY.observe(latency)
+
             return {
                 "source": "semantic_cache",
-                "response": semantic["response"]
+                "response": semantic["response"],
+                "latency": latency,
             }
 
         logger.info("Semantic cache miss")
@@ -284,12 +294,13 @@ def process_chat(
     # Latency
     # ======================================================
 
-    REQUEST_LATENCY.observe(
-        time.time() - start_time
-    )
+    latency = round(time.time() - start_time, 3)
 
+    REQUEST_LATENCY.observe(latency)
     print("STEP 7: Returning response")
+
     return {
         "source": "llm",
         "response": response,
+        "latency": latency,
     }
