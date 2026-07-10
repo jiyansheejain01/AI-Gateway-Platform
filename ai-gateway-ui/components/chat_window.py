@@ -25,7 +25,7 @@ class ChatWindow:
         set_chat_window(self)
 
         with ui.column().classes(
-            "flex-grow max-w-6xl mx-auto px-6 py-4"
+            "flex-1 min-w-0 px-6 py-4"
         ):
 
             self.chat_container = ui.column().classes(

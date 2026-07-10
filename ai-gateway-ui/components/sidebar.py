@@ -126,7 +126,7 @@ def build_sidebar(chat_window=None):
         print("Failed to load conversations:", e)
 
     with ui.column().classes(
-    "w-72 h-full bg-white border-r border-gray-200 p-3"
+    "w-72 shrink-0 h-full bg-white border-r border-gray-200 p-3"
     ):
 
         # ---------------- New Chat ---------------- #

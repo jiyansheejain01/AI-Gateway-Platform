@@ -31,7 +31,7 @@ def metric_row(icon: str, title: str):
 def build_analytics():
 
     with ui.column().classes(
-        "w-80 h-full bg-white border-l border-gray-200 p-5"
+    "w-80 shrink-0 h-full bg-white border-l border-gray-200 p-5"
     ):
 
         ui.label(

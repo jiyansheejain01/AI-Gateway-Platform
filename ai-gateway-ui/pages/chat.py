@@ -11,7 +11,9 @@ def chat_page():
     build_header()
 
     # ---------------- Main Layout ---------------- #
-    with ui.row().classes("w-full h-screen no-wrap"):
+    with ui.row().classes(
+    "w-full h-screen no-wrap items-stretch overflow-hidden"
+    ):
 
         # Left Sidebar
         build_sidebar()
