@@ -6,6 +6,7 @@ from api.client import (
     get_conversation,
 )
 from components.chat_controller import set_chat_window
+from components.sidebar_controller import refresh_sidebar
 from auth.session import get_token
 from components.message import MessageBubble
 from auth.chat_session import (
@@ -356,7 +357,9 @@ class ChatWindow:
                 model=model,
                 source=source,
             )
+            refresh_sidebar()
             print("Reached F")
+            
 
         except Exception as e:
 

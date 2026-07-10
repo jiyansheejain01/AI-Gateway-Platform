@@ -2,6 +2,7 @@ from nicegui import ui
 from api.client import get_conversations
 from auth.session import get_token
 from components.chat_controller import get_chat_window
+from components.sidebar_controller import set_sidebar_refresh
 
 def conversation_item(
     title: str,
@@ -68,6 +69,40 @@ def conversation_item(
                     "text-xs text-gray-400"
                 )
 
+@ui.refreshable
+def render_conversations():
+
+    conversations = []
+
+    try:
+        token = get_token()
+
+        response = get_conversations(token)
+
+        if response.status_code == 200:
+            conversations = response.json()
+
+    except Exception as e:
+        print("Failed to load conversations:", e)
+
+    if conversations:
+
+        for i, conversation in enumerate(conversations):
+
+            conversation_item(
+                title=conversation["title"],
+                session_id=conversation["session_id"],
+                active=(i == 0),
+                on_click=lambda session_id: get_chat_window().load_conversation(session_id),
+            )
+
+    else:
+
+        ui.label(
+            "No conversations yet"
+        ).classes(
+            "text-xs text-gray-400 px-2 py-2"
+        )
 
 def build_sidebar(chat_window=None):
 
@@ -116,24 +151,9 @@ def build_sidebar(chat_window=None):
             "uppercase tracking-widest text-[11px] font-semibold text-gray-400 px-2 pt-2"
         )
 
-        if conversations:
+        set_sidebar_refresh(render_conversations.refresh)
 
-            for i, conversation in enumerate(conversations):
-
-                conversation_item(
-                    title=conversation["title"],
-                    session_id=conversation["session_id"],
-                    active=(i == 0),
-                    on_click=lambda session_id: get_chat_window().load_conversation(session_id),
-                )
-
-        else:
-
-            ui.label(
-                "No conversations yet"
-            ).classes(
-                "text-xs text-gray-400 px-2 py-2"
-            )
+        render_conversations()
 
         ui.separator().classes("my-3")
 
