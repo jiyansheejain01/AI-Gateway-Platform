@@ -46,6 +46,7 @@ def login_page():
 
                 save_session(
                     data["access_token"],
+                    data["refresh_token"],
                     username.value,
                 )
 
