@@ -84,7 +84,7 @@ app.include_router(
     health_router,
     prefix="/api/v1",
 )
-
+"""
 app.include_router(
     login_router,
     prefix="/api/v1",
@@ -115,3 +115,5 @@ app.include_router(
 
 FastAPIInstrumentor.instrument_app(app)
 Instrumentator().instrument(app).expose(app)
+
+""""
