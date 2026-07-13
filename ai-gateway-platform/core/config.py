@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     APP_NAME: str
     APP_ENV: str
     DEBUG: bool
+    CORS_ORIGINS: str
 
     # ==========================================================
     # EXECUTION MODE

@@ -8,6 +8,7 @@ Responsible only for:
 """
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
@@ -37,6 +38,21 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title="AI Gateway Platform",
     version="1.0.0",
+)
+
+# ==========================================================
+# CORS
+# ==========================================================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        origin.strip()
+        for origin in settings.CORS_ORIGINS.split(",")
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ==========================================================
