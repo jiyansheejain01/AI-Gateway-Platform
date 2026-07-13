@@ -9,7 +9,10 @@ from fastapi import status
 from sqlalchemy.orm import Session
 
 from core.security import verify_password
-from gateway.auth import create_access_token
+from gateway.auth import (
+    create_access_token,
+    create_refresh_token,
+)
 from services.user_service.crud import authenticate_user
 from services.user_service.database import get_db
 from services.user_service.schemas import (
@@ -55,13 +58,20 @@ def login(
             detail="Invalid username or password",
         )
 
-    token = create_access_token(
+    access_token = create_access_token(
+    user.id,
+    user.username,
+    user.role,
+    )
+
+    refresh_token = create_refresh_token(
         user.id,
         user.username,
         user.role,
     )
 
     return {
-        "access_token": token,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
         "token_type": "bearer",
     }
