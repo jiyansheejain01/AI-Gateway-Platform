@@ -18,7 +18,15 @@ from core.logging import logger
 # Database Engine
 # ==========================================================
 
+from pathlib import Path
+
 if settings.LOCAL_MODE:
+    Path(settings.SQLITE_PATH).parent.mkdir(parents=True, exist_ok=True)
+
+    engine = create_engine(
+        settings.DATABASE_URL,
+        connect_args={"check_same_thread": False},
+    )
 
     engine = create_engine(
         settings.DATABASE_URL,
