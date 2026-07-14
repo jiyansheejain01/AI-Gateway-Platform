@@ -6,18 +6,26 @@ Contains the complete business logic for processing chat requests.
 
 import time
 
+print("CHAT 1")
 from core.logging import logger
 
+print("CHAT 2")
 from kafka_service.producer import publish_event
+
+print("CHAT 3")
 from kafka_service.topics import RESPONSE_GENERATED
 
+print("CHAT 4")
 from services.router_service.routing import route_prompt
+
+print("CHAT 5")
 from services.memory_service.followup_classifier import is_follow_up
 
+print("CHAT 6")
 from services.monitoring.tracing import tracer
 
+print("CHAT 7")
 from services.monitoring.metrics import (
-    
     REQUEST_COUNT,
     REQUEST_LATENCY,
     REDIS_CACHE_HITS,
@@ -29,24 +37,30 @@ from services.monitoring.metrics import (
     KAFKA_EVENTS,
 )
 
+print("CHAT 8")
 from services.memory_service.conversation_memory import (
     load_conversation,
     save_conversation,
 )
 
+print("CHAT 9")
 from services.cache_service.redis_cache import (
     get_cached_response,
     cache_response,
 )
 
+print("CHAT 10")
 from services.cache_service.semantic_cache import (
     search_similar_prompt,
     store_embedding,
 )
 
+print("CHAT 11")
 from services.llm_service.orchestrator import (
     generate_response,
 )
+
+print("CHAT IMPORTS COMPLETE")
 
 
 def process_chat(
