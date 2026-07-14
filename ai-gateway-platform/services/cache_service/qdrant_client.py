@@ -39,27 +39,26 @@ try:
         for collection in collections.collections
     ]
 
-    if COLLECTION_NAME not in existing:
-
-        client.create_collection(
-            collection_name=COLLECTION_NAME,
-            vectors_config=VectorParams(
-                size=384,
-                distance=Distance.COSINE,
-            ),
-        )
+    if COLLECTION_NAME in existing:
+        client.delete_collection(COLLECTION_NAME)
 
         logger.info(
-            "Created Qdrant collection",
+            "Deleted old Qdrant collection",
             collection=COLLECTION_NAME,
         )
 
-    else:
+    client.create_collection(
+        collection_name=COLLECTION_NAME,
+        vectors_config=VectorParams(
+            size=1536,
+            distance=Distance.COSINE,
+        ),
+    )
 
-        logger.info(
-            "Qdrant collection already exists",
-            collection=COLLECTION_NAME,
-        )
+    logger.info(
+        "Created Qdrant collection",
+        collection=COLLECTION_NAME,
+    )
 
 except Exception as e:
 
