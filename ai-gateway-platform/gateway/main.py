@@ -35,7 +35,6 @@ from services.user_service.models import User
 # Create database tables (temporary until Alembic is added)
 Base.metadata.create_all(bind=engine)
 
-print ("STEP A")
 app = FastAPI(
     title="AI Gateway Platform",
     version="1.0.0",
@@ -44,7 +43,7 @@ app = FastAPI(
 # ==========================================================
 # CORS
 # ==========================================================
-print("step B")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -86,8 +85,6 @@ app.include_router(
     prefix="/api/v1",
 )
 
-print("step c")
-"""
 app.include_router(
     login_router,
     prefix="/api/v1",
@@ -119,4 +116,3 @@ app.include_router(
 FastAPIInstrumentor.instrument_app(app)
 Instrumentator().instrument(app).expose(app)
 
-"""
