@@ -1,7 +1,7 @@
 """
 Service to generate embeddings using OpenAI, HuggingFace, or Cohere models.
 """
-
+"""
 from sentence_transformers import SentenceTransformer
 
 # Load the embedding model once
@@ -9,9 +9,7 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
 def generate_embedding(prompt: str):
-    """
-    Convert a prompt into an embedding vector.
-    """
+    
 
     embedding = model.encode(
         prompt,
@@ -19,3 +17,12 @@ def generate_embedding(prompt: str):
     )
 
     return embedding.tolist()
+"""
+
+"""
+TEMP DEBUG VERSION
+"""
+
+def generate_embedding(prompt: str):
+    # Return a dummy embedding
+    return [0.0] * 384
