@@ -5,7 +5,18 @@ from auth.session import (
     get_username,
 )
 
-BASE_URL = "http://127.0.0.1:8000/api/v1"
+import os
+
+print("=" * 50)
+print("BACKEND_URL =", os.getenv("BACKEND_URL"))
+print("=" * 50)
+
+BASE_URL = os.getenv(
+    "BACKEND_URL",
+    "http://127.0.0.1:8000/api/v1",
+)
+
+print("BASE_URL =", BASE_URL)
 
 
 # --------------------------------------------------
