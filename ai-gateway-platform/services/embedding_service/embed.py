@@ -1,43 +1,61 @@
 """
-Service to generate embeddings using OpenAI, HuggingFace, or Cohere models.
+Embedding Service
+
+Uses Cohere Embeddings API instead of a local
+SentenceTransformer model.
+
+Benefits:
+- No torch
+- No transformers
+- Very low RAM usage
+- Suitable for Render free tier
 """
-"""
-from sentence_transformers import SentenceTransformer
 
-# Load the embedding model once
-model = SentenceTransformer("all-MiniLM-L6-v2")
+import cohere
+
+from core.config import settings
+from core.logging import logger
 
 
-def generate_embedding(prompt: str):
-    
+# ==========================================================
+# Cohere Client
+# ==========================================================
 
-    embedding = model.encode(
-        prompt,
-        convert_to_numpy=True
+client = cohere.ClientV2(
+    api_key=settings.COHERE_API_KEY,
+)
+
+
+# ==========================================================
+# Embedding Generation
+# ==========================================================
+
+def generate_embedding(prompt: str) -> list[float]:
+    """
+    Generate an embedding vector using Cohere.
+    """
+
+    logger.info(
+        "Generating embedding",
+        provider="Cohere",
     )
 
-    return embedding.tolist()
-"""
+    try:
 
-"""
-TEMP DEBUG VERSION
+        response = client.embed(
+            texts=[prompt],
+            model="embed-v4.0",
+            input_type="search_query",
+            embedding_types=["float"],
+        )
 
+        return response.embeddings.float_[0]
 
-def generate_embedding(prompt: str):
-    # Return a dummy embedding
-    return [0.0] * 384
-"""
+    except Exception as e:
 
+        logger.error(
+            "Embedding generation failed",
+            error=str(e),
+        )
 
-_model = None
-
-def get_model():
-    global _model
-    if _model is None:
-        from sentence_transformers import SentenceTransformer
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
-    return _model
-
-def generate_embedding(prompt):
-    model = get_model()
-    return model.encode(prompt, convert_to_numpy=True).tolist()
+        raise
