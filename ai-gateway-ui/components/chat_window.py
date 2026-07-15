@@ -50,10 +50,14 @@ class ChatWindow:
                         "flex-grow text-base"
                     )
                 )
-                self.prompt.on(
-                    "keydown.enter",
-                    lambda _: self.send(),
-                )
+                def handle_key(e):
+                    # Send only on Enter
+                    # Shift+Enter inserts a new line
+                    if e.args["key"] == "Enter" and not e.args["shiftKey"]:
+                        e.args["preventDefault"] = True
+                        ui.timer(0, self.send, once=True)
+
+                self.prompt.on("keydown", handle_key)
 
                 ui.button(
                     "Send",
