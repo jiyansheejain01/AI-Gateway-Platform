@@ -2,10 +2,11 @@
 Hybrid follow-up classifier.
 
 1. Fast rule-based detection for obvious follow-up questions.
-2. AI-based fallback using Phi-3 (Ollama).
+2. AI-based fallback using Phi-3 (Ollama) with conversation context.
 """
 
 from ollama import chat
+
 
 # ----------------------------------------------------------
 # Rule-based follow-up keywords
@@ -33,71 +34,151 @@ FOLLOW_UP_KEYWORDS = {
     "previous",
     "above",
     "earlier",
-    "before"
+    "before",
+
+    # Common conversational follow-ups
+    "and",
+    "what",
+    "why",
+    "how",
+    "which",
+    "where",
+    "when",
+    "compare",
+    "versus",
+    "vs",
+    "fees",
+    "cost",
+    "ranking",
 }
+
 
 SYSTEM_PROMPT = """
 You are a conversation classifier.
 
-Determine whether the user's message depends on previous conversation.
+You will receive:
+
+1. Previous conversation.
+2. Current user message.
+
+Determine whether the current message depends on the previous conversation.
 
 Examples
 
-User: What is Kafka?
-Answer: NO
+Conversation
 
-User: Explain Docker.
-Answer: NO
+User: Top universities in Germany
 
-User: Who developed it?
-Answer: YES
+Current:
+and UK
 
-User: Compare it with RabbitMQ.
-Answer: YES
+Answer:
+YES
 
-User: Explain that again.
-Answer: YES
 
-User: Continue.
-Answer: YES
+Conversation
 
-Rules:
+User: Explain Kafka
+
+Current:
+What is Docker?
+
+Answer:
+NO
+
+
+Conversation
+
+User: Explain CNN
+
+Current:
+Advantages?
+
+Answer:
+YES
+
+
+Conversation
+
+User: Weather in Delhi
+
+Current:
+Bangalore?
+
+Answer:
+YES
+
+
+Rules
+
 - Reply ONLY YES or NO.
 - No explanation.
 """
 
 
-def is_follow_up(prompt: str) -> bool:
+def is_follow_up(
+    prompt: str,
+    conversation: list,
+) -> bool:
 
-    prompt = prompt.strip().lower()
+    prompt = prompt.strip()
 
-    words = prompt.replace("?", "").replace(".", "").split()
+    words = (
+        prompt.lower()
+        .replace("?", "")
+        .replace(".", "")
+        .split()
+    )
 
     # ------------------------------------------------------
-    # Fast rule-based detection
+    # Rule 1: Very short prompts are almost always follow-ups
+    # ------------------------------------------------------
+
+    if len(words) <= 3:
+        return True
+
+    # ------------------------------------------------------
+    # Rule 2: Keyword detection
     # ------------------------------------------------------
 
     if any(word in FOLLOW_UP_KEYWORDS for word in words):
         return True
 
     # ------------------------------------------------------
-    # AI-based fallback
+    # Rule 3: AI Classification
     # ------------------------------------------------------
 
     try:
+
+        history = ""
+
+        for message in conversation[-6:]:
+
+            history += (
+                f'{message["role"]}: '
+                f'{message["content"]}\n'
+            )
 
         response = chat(
             model="phi3:latest",
             messages=[
                 {
                     "role": "system",
-                    "content": SYSTEM_PROMPT
+                    "content": SYSTEM_PROMPT,
                 },
                 {
                     "role": "user",
-                    "content": prompt
-                }
-            ]
+                    "content": f"""
+Conversation
+
+{history}
+
+Current
+
+{prompt}
+""",
+                },
+            ],
         )
 
         answer = (
@@ -113,4 +194,3 @@ def is_follow_up(prompt: str) -> bool:
         print("Follow-up classifier error:", e)
 
         return False
-

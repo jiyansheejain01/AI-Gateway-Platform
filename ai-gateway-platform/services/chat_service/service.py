@@ -42,7 +42,7 @@ from services.memory_service.conversation_memory import (
     load_conversation,
     save_conversation,
 )
-
+from services.query_rewriter.rewriter import rewrite_query
 print("CHAT 9")
 from services.cache_service.redis_cache import (
     get_cached_response,
@@ -94,15 +94,47 @@ def process_chat(
     )
 
     # ======================================================
+    # Load Conversation
+    # ======================================================
+
+    conversation = load_conversation(
+        tenant,
+        user_id,
+        session_id,
+    )
+    # ======================================================
     # Follow-up Detection
     # ======================================================
 
+    # Keep the original user message
+    original_prompt = prompt
+
     with tracer.start_as_current_span("Follow-up Detection"):
-        follow_up = is_follow_up(prompt)
+
+        follow_up = is_follow_up(
+            prompt,
+            conversation,
+        )
+
         print("STEP 2: Follow-up detection complete")
 
     if follow_up:
+
         FOLLOWUP_REQUESTS.inc()
+
+
+        prompt = rewrite_query(
+            conversation,
+            prompt,
+        )
+
+        logger.info(
+            "Prompt rewritten",
+            original_prompt=original_prompt,
+            rewritten_prompt=prompt,
+        )
+
+        print("REWRITTEN PROMPT:", prompt)
 
     # ======================================================
     # Standalone Prompt -> Use Cache
@@ -180,22 +212,11 @@ def process_chat(
 
     else:
 
-        logger.info("Follow-up detected")
-
-        with tracer.start_as_current_span("Load Conversation"):
-
-            conversation = load_conversation(
-                tenant,
-                user_id,
-                session_id,
-            )
-
         logger.info(
-            "Conversation loaded",
+            "Follow-up detected",
             session_id=session_id,
             messages=len(conversation),
         )
-
     # ======================================================
     # Model Router
     # ======================================================
@@ -225,7 +246,7 @@ def process_chat(
     conversation.append(
         {
             "role": "user",
-            "content": prompt
+            "content": original_prompt
         }
     )
 
